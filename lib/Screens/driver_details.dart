@@ -169,7 +169,9 @@ class DriverDetailsFragment extends StatelessWidget {
           padding: const EdgeInsets.all(10),
           child: Column(
             children: [
-              for (int i = 0; i < driverDetails[0].length; i++)
+              for (int i = 0;
+                  i < driverDetails[0].length && i < driverInfosLabels.length;
+                  i++)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -249,36 +251,37 @@ class DriverDetailsFragment extends StatelessWidget {
             ],
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.only(left: 5, right: 5, bottom: 10),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 15),
-                child: Text(
-                  AppLocalizations.of(context)!.gallery,
-                  style: TextStyle(
-                    fontSize: 18,
+        if (driverDetails[3][0].isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(left: 5, right: 5, bottom: 10),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 15),
+                  child: Text(
+                    AppLocalizations.of(context)!.gallery,
+                    style: TextStyle(
+                      fontSize: 18,
+                    ),
                   ),
                 ),
-              ),
-              CarouselSlider(
-                items: [
-                  for (int i = 0; i < driverDetails[3][0].length; i++)
-                    Image.network(driverDetails[3][0][i]),
-                ],
-                options: CarouselOptions(
-                  height: kIsWeb ? 350 : 250,
-                  autoPlay: true,
-                  viewportFraction: 0.85,
-                  autoPlayInterval: const Duration(seconds: 7),
-                  enlargeCenterPage: true,
-                  aspectRatio: 16 / 9,
+                CarouselSlider(
+                  items: [
+                    for (int i = 0; i < driverDetails[3][0].length; i++)
+                      Image.network(driverDetails[3][0][i]),
+                  ],
+                  options: CarouselOptions(
+                    height: kIsWeb ? 350 : 250,
+                    autoPlay: true,
+                    viewportFraction: 0.85,
+                    autoPlayInterval: const Duration(seconds: 7),
+                    enlargeCenterPage: true,
+                    aspectRatio: 16 / 9,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
       ],
     );
   }

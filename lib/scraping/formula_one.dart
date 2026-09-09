@@ -20,6 +20,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:boxbox/scraping/profile_details.dart';
+
 import 'package:boxbox/classes/driver.dart';
 import 'package:boxbox/classes/misc.dart';
 import 'package:boxbox/helpers/constants.dart';
@@ -358,67 +360,11 @@ class FormulaOneScraper {
       );
     }
     http.Response response = await http.get(driverDetailsUrl);
-    List<List> results = [
-      [],
-      [],
-      [],
-      [
-        [],
-        [],
-      ],
-      [],
-    ];
-    dom.Document document = parser.parse(
-      utf8.decode(response.bodyBytes),
-    );
-
-    List<dom.Element> tempDetails = document
-        .getElementsByClassName('order-3')[0]
-        .getElementsByTagName('dd');
-    for (int i = 0; i < tempDetails.length; i++) {
-      results[0].add(tempDetails[i].text);
+    if (response.statusCode != HttpStatus.ok) {
+      throw HttpException('F1 profile: HTTP ${response.statusCode}',
+          uri: driverDetailsUrl);
     }
-
-    List<dom.Element> tempDriverArticles = document
-        .getElementsByClassName('ArticleListCard-module_articlecard__T-Ylh');
-    for (dom.Element element in tempDriverArticles) {
-      results[1].add(
-        [
-          element
-              .getElementsByTagName('a')[0]
-              .attributes['href']!
-              .split('.')
-              .last,
-          element.getElementsByTagName("img").first.attributes['src']!,
-          element
-              .getElementsByClassName('ArticleListCard-module_title__-4ovb')[0]
-              .text,
-        ],
-      );
-    }
-
-    dom.Element tempBiography = document.getElementById('biography')!;
-    for (var element in tempBiography.getElementsByTagName('p')) {
-      results[2].add(element.text);
-    }
-    results[2].removeLast();
-
-    List<dom.Element> tempDriverMedias = document
-        .getElementsByTagName('dialog')[0]
-        .getElementsByClassName('rounded-s overflow-clip transition-all');
-    for (var element in tempDriverMedias) {
-      String imageUrl = element.firstChild!.attributes['src']!
-          .replaceFirst('c_fill,w_128,h_128', 'c_lfill,w_2000');
-      results[3][0].add(imageUrl);
-    }
-
-    results[4].add(
-      document
-          .getElementsByClassName('flex flex-col items-center text-center')[0]
-          .text,
-    );
-
-    return results;
+    return parseDriverProfile(utf8.decode(response.bodyBytes));
   }
 
   Future<Map<String, dynamic>> scrapeTeamDetails(
@@ -433,7 +379,7 @@ class FormulaOneScraper {
       teamDetailsUrl = Uri.parse("$endpoint/f1/en/teams/$teamId.html");
     } else {
       teamDetailsUrl = Uri.parse(
-        "https://www.formula1.com/en/teams/$teamId.html",
+        "https://www.formula1.com/en/teams/${teamId.toLowerCase()}",
       );
     }
     http.Response response = await http.get(
@@ -443,89 +389,11 @@ class FormulaOneScraper {
             'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0',
       },
     );
-    dom.Document document = parser.parse(
-      utf8.decode(response.bodyBytes),
-    );
-
-    Map<String, dynamic> results = {};
-    results["drivers"] = {"images": [], "names": []};
-    results["teamStats"] = [];
-    results["information"] = [];
-    results["medias"] = [];
-    results["articles"] = [];
-    results["teamName"] = "";
-
-    List<dom.Element> tempDetails =
-        document.getElementsByClassName('f1-grid grid-cols-2')[0].children;
-    for (int i = 0; i <= 1; i++) {
-      results["drivers"]["images"].add(
-        tempDetails[i].children[0].children[0].children[0].attributes['src'],
-      );
-      List names = [];
-      for (var name
-          in tempDetails[i].children[0].children[1].children[0].children) {
-        names.add(name.text);
-      }
-      results["drivers"]["names"].add(
-        names,
-      );
+    if (response.statusCode != HttpStatus.ok) {
+      throw HttpException('F1 profile: HTTP ${response.statusCode}',
+          uri: teamDetailsUrl);
     }
-
-    tempDetails = document.getElementsByTagName('dd');
-    if (tempDetails.length > 0) {
-      for (var detail in tempDetails) {
-        results["teamStats"].add(
-          detail.text,
-        );
-      }
-    }
-
-    tempDetails = document
-        .getElementsByClassName('f1-driver-bio')[0]
-        .children[document
-                .getElementsByClassName('f1-driver-bio')[0]
-                .children
-                .length -
-            1]
-        .children;
-    results["information"].add("## In Profile");
-    for (var element in tempDetails) {
-      String formatedElement = "";
-      if (element.text.trim().startsWith("20") ||
-          element.text.trim().startsWith("Official ") ||
-          element.text.trim().startsWith("Read ")) {
-        formatedElement = "### ";
-      }
-      results["information"].add(
-        formatedElement + element.text + "\n",
-      );
-    }
-
-    List<dom.Element> tempDriverMedias =
-        document.getElementsByClassName('f1-carousel__slide');
-    for (var element in tempDriverMedias) {
-      String imageUrl = element.firstChild!.firstChild!.attributes['src'] ?? '';
-      results["medias"].add(imageUrl);
-    }
-
-    List<dom.Element> tempDriverArticles =
-        document.getElementsByClassName('f1-driver-article-card');
-    for (dom.Element element in tempDriverArticles) {
-      if (element.attributes['href'] != null) {
-        results["articles"].add(
-          [
-            element.attributes['href']!.split('.').last,
-            element.getElementsByTagName("img").first.attributes['src']!,
-            element.children[0].children[1].children[1].text,
-            element.children[0].children[1].children[0].text,
-          ],
-        );
-      }
-    }
-
-    results["teamName"] = document.getElementsByClassName('f1-heading')[0].text;
-
-    return results;
+    return parseTeamProfile(utf8.decode(response.bodyBytes));
   }
 
   Future<int> whichSessionsAreFinised(
