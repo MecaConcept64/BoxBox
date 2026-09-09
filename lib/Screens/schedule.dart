@@ -18,6 +18,7 @@
  */
 
 import 'package:boxbox/api/race_components.dart';
+import 'package:boxbox/helpers/pitwall_tabs.dart';
 import 'package:boxbox/classes/race.dart';
 import 'package:boxbox/providers/schedule/requests.dart';
 import 'package:boxbox/providers/schedule/ui.dart';
@@ -33,46 +34,19 @@ class ScheduleScreen extends StatelessWidget {
     return DefaultTabController(
       length: 2,
       initialIndex: 1,
-      child: Scaffold(
-        extendBodyBehindAppBar: true,
-        body: TabBarView(
-          children: [
-            ScheduleWidget(
-              false,
-              scrollController: scrollController,
-            ),
-            ScheduleWidget(
-              true,
-              scrollController: scrollController,
-            ),
-          ],
-        ),
-        appBar: PreferredSize(
-          preferredSize: const Size(200, 100),
-          child: SizedBox(
-            height: 50,
-            child: Card(
-              elevation: 3,
-              child: TabBar(
-                dividerColor: Colors.transparent,
-                tabs: [
-                  Text(
-                    AppLocalizations.of(context)!.previous,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Text(
-                    AppLocalizations.of(context)!.next,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+      child: Column(
+        children: [
+          PitwallTabs(labels: [
+            AppLocalizations.of(context)!.previous,
+            AppLocalizations.of(context)!.next,
+          ]),
+          Expanded(
+            child: TabBarView(children: [
+              ScheduleWidget(false, scrollController: scrollController),
+              ScheduleWidget(true, scrollController: scrollController),
+            ]),
           ),
-        ),
+        ],
       ),
     );
   }

@@ -18,6 +18,7 @@
  */
 
 import 'package:boxbox/api/driver_components.dart';
+import 'package:boxbox/helpers/pitwall_tabs.dart';
 import 'package:boxbox/api/team_components.dart';
 import 'package:boxbox/classes/driver.dart';
 import 'package:boxbox/classes/team.dart';
@@ -40,40 +41,19 @@ class StandingsScreen extends StatelessWidget {
     return DefaultTabController(
       length: 2,
       initialIndex: switchToTeamStandings != null ? 1 : 0,
-      child: Scaffold(
-        extendBodyBehindAppBar: true,
-        body: TabBarView(
-          children: [
-            DriversStandingsWidget(scrollController: scrollController),
-            TeamsStandingsWidget(scrollController: scrollController),
-          ],
-        ),
-        appBar: PreferredSize(
-          preferredSize: const Size(200, 100),
-          child: SizedBox(
-            height: 50,
-            child: Card(
-              elevation: 3,
-              child: TabBar(
-                dividerColor: Colors.transparent,
-                tabs: [
-                  Text(
-                    AppLocalizations.of(context)!.drivers,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Text(
-                    AppLocalizations.of(context)!.teams,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+      child: Column(
+        children: [
+          PitwallTabs(labels: [
+            AppLocalizations.of(context)!.drivers,
+            AppLocalizations.of(context)!.teams,
+          ]),
+          Expanded(
+            child: TabBarView(children: [
+              DriversStandingsWidget(scrollController: scrollController),
+              TeamsStandingsWidget(scrollController: scrollController),
+            ]),
           ),
-        ),
+        ],
       ),
     );
   }

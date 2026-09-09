@@ -263,8 +263,8 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     String teamTheme = Hive.box('settings')
         .get('teamTheme', defaultValue: 'default') as String;
-    bool useDarkMode =
-        Hive.box('settings').get('darkMode', defaultValue: true) as bool;
+    final appearanceMode =
+        Hive.box('settings').get('themeMode', defaultValue: 0) as int;
 
     // 2024 team rebrandings
     if (teamTheme == 'alfa' || teamTheme == 'alphatauri') {
@@ -309,6 +309,11 @@ class _MyAppState extends State<MyApp> {
       );
     }
 
+    final selectedAppearance = appearanceMode == 0
+        ? AdaptiveThemeMode.system
+        : appearanceMode == 1
+            ? AdaptiveThemeMode.light
+            : AdaptiveThemeMode.dark;
     return AdaptiveTheme(
       light: ThemeData(
         useMaterial3: true,
@@ -333,7 +338,8 @@ class _MyAppState extends State<MyApp> {
               ),
         fontFamily: 'Formula1',
       ),
-      initial: useDarkMode ? AdaptiveThemeMode.dark : AdaptiveThemeMode.light,
+      initial: selectedAppearance,
+      overrideMode: selectedAppearance,
       builder: (theme, darkTheme) => MaterialApp.router(
         title: 'Box, Box!',
         theme: theme,

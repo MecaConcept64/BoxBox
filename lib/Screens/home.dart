@@ -32,11 +32,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:webfeed/webfeed.dart';
 
-const pitwallCoral = Color(0xFFFF7B68);
-const pitwallBackground = Color(0xFF101719);
-const pitwallSurface = Color(0xFF1B2529);
-const pitwallMuted = Color(0xFFACBAC5);
-
 class HomeScreen extends StatefulWidget {
   final ScrollController scrollController;
   const HomeScreen(this.scrollController, {super.key});
@@ -99,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     return RefreshIndicator(
       onRefresh: _refresh,
-      color: pitwallCoral,
+      color: Theme.of(context).colorScheme.primary,
       child: ListView(
         controller: widget.scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
@@ -122,8 +117,8 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(children: [
             Expanded(
                 child: Text(l.pitwallNews,
-                    style: const TextStyle(
-                        fontSize: 25, fontWeight: FontWeight.w700))),
+                    style:
+                        TextStyle(fontSize: 25, fontWeight: FontWeight.w700))),
             TextButton(
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => RssFeedScreen(l.news, _feedUrl))),
@@ -156,7 +151,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _message(String message) => Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-            color: pitwallSurface, borderRadius: BorderRadius.circular(24)),
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(24)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(message),
           TextButton.icon(
@@ -205,8 +201,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                 Text(AppLocalizations.of(context)!.pitwallCategory,
-                    style: const TextStyle(
-                        color: pitwallCoral,
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
                         fontSize: 10,
                         letterSpacing: 2,
                         fontWeight: FontWeight.w700)),
@@ -214,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(item.title ?? '',
                     maxLines: 4,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 17,
                         height: 1.2,
                         fontWeight: FontWeight.w600)),
@@ -222,23 +218,28 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(source,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: pitwallMuted, fontSize: 12)),
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontSize: 12)),
                 if (item.pubDate != null)
                   Text(
                       DateFormat.MMMd(locale)
                           .add_Hm()
                           .format(item.pubDate!.toLocal()),
-                      style:
-                          const TextStyle(color: pitwallMuted, fontSize: 12)),
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontSize: 12)),
               ])),
         ]),
       ),
     );
   }
 
-  Widget _imageFallback() => const ColoredBox(
-      color: pitwallSurface,
-      child: Center(child: Icon(Icons.newspaper, color: pitwallMuted)));
+  Widget _imageFallback() => ColoredBox(
+      color: Theme.of(context).colorScheme.surface,
+      child: Center(
+          child: Icon(Icons.newspaper,
+              color: Theme.of(context).colorScheme.onSurfaceVariant)));
 }
 
 class PitwallWeekendCard extends StatelessWidget {
@@ -259,26 +260,25 @@ class PitwallWeekendCard extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28),
-        gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF202D32), pitwallSurface]),
-        border: Border.all(color: const Color(0xFF2A373C)),
+        color: Theme.of(context).colorScheme.surface,
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          const Icon(Icons.sports_motorsports, color: pitwallCoral, size: 28),
+          Icon(Icons.sports_motorsports,
+              color: Theme.of(context).colorScheme.primary, size: 28),
           const SizedBox(width: 10),
           Expanded(
               child: Text(l.pitwallWeekend,
-                  style: const TextStyle(
-                      fontSize: 21, fontWeight: FontWeight.w700))),
+                  style: TextStyle(fontSize: 21, fontWeight: FontWeight.w700))),
         ]),
         const SizedBox(height: 16),
         Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
             decoration: BoxDecoration(
-                color: live ? pitwallCoral : const Color(0xFF354249),
+                color: live
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(20)),
             child: Text(
                 live
@@ -288,48 +288,57 @@ class PitwallWeekendCard extends StatelessWidget {
                         : l.pitwallUpcoming,
                 style: TextStyle(
                     fontSize: 12,
-                    color: live ? pitwallBackground : Colors.white))),
+                    color: live
+                        ? Theme.of(context).colorScheme.onPrimary
+                        : Theme.of(context).colorScheme.onSurface))),
         const SizedBox(height: 14),
         Text(event.meetingOfficialName,
-            style: const TextStyle(
-                color: pitwallMuted, fontSize: 11, letterSpacing: 1.3)),
+            style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: 11,
+                letterSpacing: 1.3)),
         const SizedBox(height: 5),
         Text(event.meetingCountryName,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700)),
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700)),
         if (sessions.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 6),
             child: Text(
               '${DateFormat.MMMd(locale).format(sessions.first.startTime.toLocal())} – ${DateFormat.yMMMd(locale).format(sessions.last.startTime.toLocal())}',
-              style: const TextStyle(color: pitwallMuted, fontSize: 13),
+              style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 13),
             ),
           ),
         if (event.circuitImage.isNotEmpty)
           Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: ColorFiltered(
-                  colorFilter: const ColorFilter.matrix([
-                    -1,
-                    0,
-                    0,
-                    0,
-                    255,
-                    0,
-                    -1,
-                    0,
-                    0,
-                    255,
-                    0,
-                    0,
-                    -1,
-                    0,
-                    255,
-                    0,
-                    0,
-                    0,
-                    1,
-                    0,
-                  ]),
+                  colorFilter: Theme.of(context).brightness == Brightness.light
+                      ? const ColorFilter.mode(
+                          Colors.transparent, BlendMode.dst)
+                      : const ColorFilter.matrix([
+                          -1,
+                          0,
+                          0,
+                          0,
+                          255,
+                          0,
+                          -1,
+                          0,
+                          0,
+                          255,
+                          0,
+                          0,
+                          -1,
+                          0,
+                          255,
+                          0,
+                          0,
+                          0,
+                          1,
+                          0,
+                        ]),
                   child: Image.network(event.circuitImage,
                       height: 100,
                       width: double.infinity,
@@ -337,30 +346,36 @@ class PitwallWeekendCard extends StatelessWidget {
                       errorBuilder: (_, __, ___) => const SizedBox.shrink()))),
         const SizedBox(height: 8),
         for (final session in sessions) ...[
-          const Divider(color: Color(0xFF354249), height: 1),
+          Divider(
+              color: Theme.of(context).colorScheme.outlineVariant, height: 1),
           Padding(
               padding: const EdgeInsets.symmetric(vertical: 11),
               child: Row(children: [
                 SizedBox(
                     width: 34,
                     child: Text(session.sessionAbbreviation.toUpperCase(),
-                        style: const TextStyle(
-                            color: pitwallCoral, fontWeight: FontWeight.w700))),
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.w700))),
                 Expanded(
                     child: Text(_sessionName(session, l),
-                        style: const TextStyle(fontSize: 14))),
+                        style: TextStyle(fontSize: 14))),
                 const SizedBox(width: 8),
                 Text(
                     DateFormat.E(locale)
                         .add_Hm()
                         .format(session.startTime.toLocal()),
-                    style: const TextStyle(color: pitwallMuted, fontSize: 13)),
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontSize: 13)),
               ])),
         ],
         if (sessions.isEmpty) Text(l.pitwallScheduleUnavailable),
         const SizedBox(height: 10),
         Text(l.pitwallLocalTime,
-            style: const TextStyle(color: pitwallMuted, fontSize: 11)),
+            style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: 11)),
         const SizedBox(height: 16),
         SizedBox(
             width: double.infinity,
@@ -368,8 +383,8 @@ class PitwallWeekendCard extends StatelessWidget {
                 onPressed: () =>
                     context.pushNamed('race-hub', extra: {'event': event}),
                 style: FilledButton.styleFrom(
-                    backgroundColor: pitwallCoral,
-                    foregroundColor: pitwallBackground,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     padding: const EdgeInsets.symmetric(vertical: 15)),
                 child:
                     Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -377,7 +392,7 @@ class PitwallWeekendCard extends StatelessWidget {
                   const SizedBox(width: 8),
                   Flexible(
                       child: Text(l.pitwallRaceCenter,
-                          style: const TextStyle(fontWeight: FontWeight.w700))),
+                          style: TextStyle(fontWeight: FontWeight.w700))),
                   const SizedBox(width: 8),
                   const Icon(Icons.arrow_forward, size: 20),
                 ]))),

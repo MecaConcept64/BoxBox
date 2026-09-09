@@ -17,7 +17,8 @@
  * Copyright (c) 2022-2025, BrightDV
  */
 
-import 'package:boxbox/Screens/home.dart';
+import 'package:boxbox/Screens/schedule.dart';
+import 'package:boxbox/theme/pitwall_theme.dart';
 import 'package:boxbox/config/home_feed.dart';
 import 'package:go_router/go_router.dart';
 import 'package:background_downloader/background_downloader.dart';
@@ -94,34 +95,11 @@ class _MainBottomNavigationBarState extends State<MainBottomNavigationBar> {
     bool disableBottomNavigationBarLabels = Hive.box('settings')
         .get('disableBottomNavigationBarLabels', defaultValue: false) as bool;
 
-    final usePitwall = _selectedIndex == 0 &&
-        HomeFeedConfiguration(Hive.box('settings')).usePitwall;
+    final usePitwall = (_selectedIndex == 0 &&
+            HomeFeedConfiguration(Hive.box('settings')).usePitwall) ||
+        screens.elementAt(_selectedIndex) is ScheduleScreen;
     final activeTheme = Theme.of(context);
-    final pitwallTheme = ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.dark,
-      scaffoldBackgroundColor: pitwallBackground,
-      fontFamily: 'Titilium',
-      colorScheme: ColorScheme.fromSeed(
-          seedColor: pitwallCoral,
-          brightness: Brightness.dark,
-          primary: pitwallCoral,
-          surface: pitwallSurface),
-      navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: pitwallBackground,
-        indicatorColor: pitwallCoral.withValues(alpha: 0.18),
-        labelTextStyle: WidgetStateProperty.resolveWith((states) => TextStyle(
-            fontFamily: 'Titilium',
-            fontSize: 12,
-            color: states.contains(WidgetState.selected)
-                ? pitwallCoral
-                : pitwallMuted)),
-        iconTheme: WidgetStateProperty.resolveWith((states) => IconThemeData(
-            color: states.contains(WidgetState.selected)
-                ? pitwallCoral
-                : pitwallMuted)),
-      ),
-    );
+    final pitwallTheme = buildPitwallTheme(activeTheme.brightness);
     return Theme(
         data: usePitwall ? pitwallTheme : activeTheme,
         child: Scaffold(
@@ -130,7 +108,7 @@ class _MainBottomNavigationBarState extends State<MainBottomNavigationBar> {
             toolbarHeight: 76,
             titleSpacing: 0,
             title: usePitwall
-                ? const Column(
+                ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                         Text.rich(TextSpan(children: [
@@ -141,19 +119,21 @@ class _MainBottomNavigationBarState extends State<MainBottomNavigationBar> {
                           TextSpan(
                               text: ' ///',
                               style: TextStyle(
-                                  color: pitwallCoral,
+                                  color: pitwallTheme.colorScheme.primary,
                                   fontWeight: FontWeight.w900,
                                   fontSize: 27)),
                         ])),
                         Text('P I T W A L L',
                             style: TextStyle(
                                 fontSize: 10,
-                                color: pitwallMuted,
+                                color:
+                                    pitwallTheme.colorScheme.onSurfaceVariant,
                                 letterSpacing: 2)),
                       ])
                 : const Text('BoxBox',
                     style: TextStyle(fontWeight: FontWeight.w700)),
-            foregroundColor: usePitwall ? Colors.white : null,
+            foregroundColor:
+                usePitwall ? pitwallTheme.colorScheme.onSurface : null,
             actions: [
               IconButton(
                 tooltip: AppLocalizations.of(context)!.settings,
@@ -162,7 +142,8 @@ class _MainBottomNavigationBarState extends State<MainBottomNavigationBar> {
                     .pushNamed('settings', extra: {'update': _homeSetState}),
               )
             ],
-            backgroundColor: usePitwall ? pitwallBackground : null,
+            backgroundColor:
+                usePitwall ? pitwallTheme.scaffoldBackgroundColor : null,
             surfaceTintColor: Colors.transparent,
           ),
           drawer: MainDrawer(_homeSetState),

@@ -20,10 +20,9 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:boxbox/api/services/formula1.dart';
 import 'package:boxbox/classes/race.dart';
-import 'package:boxbox/helpers/news.dart';
+import 'package:boxbox/helpers/race_flag.dart';
 import 'package:boxbox/helpers/racetracks_url.dart';
 import 'package:flutter/material.dart';
-import 'package:boxbox/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
@@ -57,33 +56,23 @@ class RaceListHeaderItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
+    final imageUrl = item.raceCoverUrl ??
+        RaceTracksUrls().getRaceCoverImageUrl(item.circuitId);
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            ImageRenderer(
-              item.raceCoverUrl != null
-                  ? item.raceCoverUrl!
-                  : RaceTracksUrls().getRaceCoverImageUrl(item.circuitId),
-              inSchedule: true,
-            ),
-            Text(
-              item.country,
-              style: TextStyle(
-                fontSize: width < 400
-                    ? 40
-                    : width < 600
-                        ? 50
-                        : 60,
-                fontWeight: FontWeight.w800,
-                color: Colors.white.withAlpha(170),
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+        ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: AspectRatio(
+            aspectRatio: 2,
+            child: Image.network(imageUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => ColoredBox(
+                      color: Theme.of(context).colorScheme.surface,
+                      child:
+                          const Center(child: Icon(Icons.landscape_outlined)),
+                    )),
+          ),
         ),
         RaceListItem(item, index),
       ],
@@ -99,208 +88,54 @@ class RaceListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String championship = Hive.box('settings')
-        .get('championship', defaultValue: 'Formula 1') as String;
-    String scheduleLastSavedFormat = '';
-    if (championship == 'Formula 1') {
-      scheduleLastSavedFormat = Hive.box('requests')
-          .get('f1ScheduleLastSavedFormat', defaultValue: 'ergast');
-    }
-    bool useDarkMode =
-        Hive.box('settings').get('darkMode', defaultValue: true) as bool;
-    bool shouldUse12HourClock = Hive.box('settings')
-        .get('shouldUse12HourClock', defaultValue: false) as bool;
-    List months = [
-      AppLocalizations.of(context)?.monthAbbreviationJanuary,
-      AppLocalizations.of(context)?.monthAbbreviationFebruary,
-      AppLocalizations.of(context)?.monthAbbreviationMarch,
-      AppLocalizations.of(context)?.monthAbbreviationApril,
-      AppLocalizations.of(context)?.monthAbbreviationMay,
-      AppLocalizations.of(context)?.monthAbbreviationJune,
-      AppLocalizations.of(context)?.monthAbbreviationJuly,
-      AppLocalizations.of(context)?.monthAbbreviationAugust,
-      AppLocalizations.of(context)?.monthAbbreviationSeptember,
-      AppLocalizations.of(context)?.monthAbbreviationOctober,
-      AppLocalizations.of(context)?.monthAbbreviationNovember,
-      AppLocalizations.of(context)?.monthAbbreviationDecember,
-    ];
-    if (scheduleLastSavedFormat == 'ergast') {
-      int month = int.parse(item.date.split("-")[1]);
-      String day = item.date.split("-")[2];
-      DateTime raceDate =
-          DateTime.parse('${item.date} ${item.raceHour}').toLocal();
-
-      String formatedRaceDate = shouldUse12HourClock
-          ? DateFormat.jm().format(raceDate)
-          : DateFormat.Hm().format(raceDate);
-
-      return Container(
-        padding: const EdgeInsets.all(2),
-        height: 84,
-        color: index % 2 == 1
-            ? Theme.of(context).colorScheme.onSecondary
-            : Theme.of(context).colorScheme.surface,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    final settings = Hive.box('settings');
+    final use12Hours =
+        settings.get('shouldUse12HourClock', defaultValue: false) as bool;
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    // Ergast supplies date and time separately; official providers supply ISO dates.
+    final date = DateTime.parse(
+            item.date.contains('T') || item.date.contains(' ')
+                ? item.date
+                : '${item.date} ${item.raceHour}')
+        .toLocal();
+    final colors = Theme.of(context).colorScheme;
+    return Container(
+      constraints: const BoxConstraints(minHeight: 88),
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      decoration: BoxDecoration(
+          border: Border(
+              bottom: BorderSide(
+                  color: colors.outlineVariant.withValues(alpha: 0.5)))),
+      child: Row(children: [
+        RaceFlag(item.country),
+        const SizedBox(width: 14),
+        Expanded(
+            child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: index == 0
-                  ? const EdgeInsets.fromLTRB(10, 0, 10, 0)
-                  : const EdgeInsets.only(left: 5),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Expanded(
-                    flex: 1,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(7),
-                        color: useDarkMode
-                            ? index % 2 == 0
-                                ? HSLColor.fromColor(
-                                    Theme.of(context).colorScheme.surface,
-                                  ).withLightness(0.2).toColor()
-                                : Theme.of(context)
-                                    .colorScheme
-                                    .secondaryContainer
-                            : const Color.fromARGB(255, 136, 135, 135),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(5),
-                        child: Column(
-                          children: [
-                            Text(
-                              day,
-                              style: const TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                            Text(
-                              months[month - 1].toLowerCase(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 5,
-                    child: ListTile(
-                      title: Text(
-                        item.country,
-                      ),
-                      subtitle: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            item.circuitName,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          if (item.hasRaceHour ?? true) Text(formatedRaceDate),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            Text(item.country,
+                style:
+                    const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 3),
+            Text(item.circuitName,
+                style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant)),
           ],
-        ),
-      );
-    } else {
-      DateTime raceDate = DateTime.parse(item.date);
-      int month = raceDate.month;
-      String day = raceDate.day.toString();
-      String formatedRaceDate = shouldUse12HourClock
-          ? DateFormat.jm().format(raceDate)
-          : DateFormat.Hm().format(raceDate);
-
-      return Container(
-        padding: const EdgeInsets.all(2),
-        height: 84,
-        color: index % 2 == 1
-            ? Theme.of(context).colorScheme.onSecondary
-            : Theme.of(context).colorScheme.surface,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Container(
-              padding: index == 0
-                  ? const EdgeInsets.fromLTRB(10, 0, 10, 0)
-                  : const EdgeInsets.only(left: 5),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Expanded(
-                    flex: 1,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(7),
-                        color: useDarkMode
-                            ? index % 2 == 0
-                                ? HSLColor.fromColor(
-                                    Theme.of(context).colorScheme.surface,
-                                  ).withLightness(0.2).toColor()
-                                : Theme.of(context)
-                                    .colorScheme
-                                    .secondaryContainer
-                            : const Color.fromARGB(255, 136, 135, 135),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(5),
-                        child: Column(
-                          children: [
-                            Text(
-                              day,
-                              style: const TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                            Text(
-                              months[month - 1].toLowerCase(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 5,
-                    child: ListTile(
-                      title: Text(
-                        item.country,
-                      ),
-                      subtitle: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            item.circuitName,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          if (item.hasRaceHour ?? true) Text(formatedRaceDate),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+        )),
+        const SizedBox(width: 12),
+        Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+          Text(DateFormat.MMMd(locale).format(date),
+              style:
+                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+          if (item.hasRaceHour ?? true) ...[
+            const SizedBox(height: 3),
+            Text(
+                (use12Hours ? DateFormat.jm(locale) : DateFormat.Hm(locale))
+                    .format(date),
+                style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant)),
           ],
-        ),
-      );
-    }
+        ]),
+      ]),
+    );
   }
 }
 
@@ -384,6 +219,7 @@ class RacesList extends StatelessWidget {
     }
     return isUpNext
         ? ListView.builder(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
             scrollDirection: Axis.vertical,
             shrinkWrap: true,
             itemCount: items.length,
@@ -403,6 +239,7 @@ class RacesList extends StatelessWidget {
             //),
           )
         : ListView.builder(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
             scrollDirection: Axis.vertical,
             shrinkWrap: true,
             itemCount: items.length,

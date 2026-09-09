@@ -42,7 +42,8 @@ void main() {
     }
     final scaffold = tester.element(find.byType(Scaffold).first);
     expect(Theme.of(scaffold).brightness, brightness);
-    if (brightness == Brightness.light) {
+    if (brightness == Brightness.light &&
+        find.text('P I T W A L L').evaluate().isEmpty) {
       expect(tester.widget<AppBar>(find.byType(AppBar).first).backgroundColor,
           isNull);
       expect(tester.widget<AppBar>(find.byType(AppBar).first).foregroundColor,
@@ -78,21 +79,42 @@ void main() {
     await cleanup(tester);
   });
 
-  testWidgets(
-      'Leaving Pitwall restores light appearance and returning restores Pitwall',
+  testWidgets('Pitwall and calendar both respect the selected light appearance',
       (tester) async {
     await prepare(tester);
     await settings.put('homeFeed', ['https://fr.motorsport.com', 'rss']);
     await mount(tester, ThemeMode.light);
-    expectShell(tester, Brightness.dark);
+    expectShell(tester, Brightness.light);
     expect(find.text('P I T W A L L'), findsOneWidget);
     await tester.tap(find.byType(NavigationDestination).at(1));
     await tester.pump(const Duration(milliseconds: 400));
     expectShell(tester, Brightness.light);
-    expect(find.text('P I T W A L L'), findsNothing);
+    expect(find.text('P I T W A L L'), findsOneWidget);
     await tester.tap(find.byType(NavigationDestination).first);
     await tester.pump(const Duration(milliseconds: 400));
+    expectShell(tester, Brightness.light);
+    expect(tester.takeException(), isNull);
+    await cleanup(tester);
+  });
+  testWidgets('Pitwall and calendar follow system brightness changes',
+      (tester) async {
+    await prepare(tester);
+    await settings.put('homeFeed', ['https://fr.motorsport.com', 'rss']);
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.light;
+    addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+    await mount(tester, ThemeMode.system);
+    expectShell(tester, Brightness.light);
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
     expectShell(tester, Brightness.dark);
+    await tester.tap(find.byType(NavigationDestination).at(1));
+    await tester.pump(const Duration(milliseconds: 400));
+    expectShell(tester, Brightness.dark);
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.light;
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expectShell(tester, Brightness.light);
     expect(tester.takeException(), isNull);
     await cleanup(tester);
   });

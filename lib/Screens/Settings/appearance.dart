@@ -131,11 +131,7 @@ class _AppearanceSettingsScreenState extends State<AppearanceSettingsScreen> {
                               MediaQuery.of(context).platformBrightness;
                           bool isDark = brightnessValue == Brightness.dark;
                           newValue = isDark;
-                          if (newValue) {
-                            AdaptiveTheme.of(context).setDark();
-                          } else {
-                            AdaptiveTheme.of(context).setLight();
-                          }
+                          AdaptiveTheme.of(context).setSystem();
                         } else if (newThemeMode == 1) {
                           newValue = false;
                           AdaptiveTheme.of(context).setLight();
