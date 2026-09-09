@@ -433,5 +433,17 @@
   "worldChampionships": "Champion du monde",
   "@worldChampionships": {},
   "yes": "Oui",
-  "@yes": {}
+  "@yes": {},
+  "pitwallWeekend": "Week-end de course",
+  "pitwallUpcoming": "À venir",
+  "pitwallFinished": "Terminé",
+  "pitwallRaceCenter": "Ouvrir le Race Center",
+  "pitwallNews": "Le paddock en parle",
+  "pitwallSeeAll": "Voir tout",
+  "pitwallScheduleUnavailable": "Programme indisponible. Faites glisser vers le bas pour actualiser.",
+  "pitwallNewsUnavailable": "Actualités indisponibles. Réessayez dans un instant.",
+  "pitwallRetry": "Réessayer",
+  "pitwallLocalTime": "Horaires dans votre fuseau local",
+  "pitwallHome": "Accueil",
+  "pitwallCategory": "FORMULE 1"
 }

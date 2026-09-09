@@ -216,21 +216,21 @@ class UIProvider {
       return [
         NavigationDestination(
           icon: const Icon(
-            Icons.feed_outlined,
+            Icons.home_outlined,
           ),
           selectedIcon: const Icon(
-            Icons.feed,
+            Icons.home,
           ),
-          label: AppLocalizations.of(context)!.news,
+          label: AppLocalizations.of(context)!.pitwallHome,
         ),
         NavigationDestination(
           icon: const Icon(
-            Icons.play_circle_outline,
+            Icons.calendar_today_outlined,
           ),
           selectedIcon: const Icon(
-            Icons.play_circle,
+            Icons.calendar_today,
           ),
-          label: AppLocalizations.of(context)!.videos,
+          label: AppLocalizations.of(context)!.schedule,
         ),
         NavigationDestination(
           icon: const Icon(
@@ -243,12 +243,12 @@ class UIProvider {
         ),
         NavigationDestination(
           icon: const Icon(
-            Icons.calendar_today_outlined,
+            Icons.play_circle_outline,
           ),
           selectedIcon: const Icon(
-            Icons.calendar_today,
+            Icons.play_circle,
           ),
-          label: AppLocalizations.of(context)!.schedule,
+          label: AppLocalizations.of(context)!.videos,
         ),
       ];
     } else if (championship == 'Formula 2' ||
@@ -324,9 +324,9 @@ class UIProvider {
     if (championship == 'Formula 1' || championship == 'Formula E') {
       return [
         HomeScreen(scrollController),
-        VideosScreen(scrollController),
-        StandingsScreen(scrollController: scrollController),
         ScheduleScreen(scrollController: scrollController),
+        StandingsScreen(scrollController: scrollController),
+        VideosScreen(scrollController),
       ];
     } else if (championship == 'Formula 2' ||
         championship == 'Formula 3' ||

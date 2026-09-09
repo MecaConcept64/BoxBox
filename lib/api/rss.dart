@@ -21,14 +21,25 @@ import 'package:http/http.dart' as http;
 import 'package:webfeed/webfeed.dart';
 
 class RssFeeds {
+  static String feedUrl(String source) {
+    final uri = Uri.parse(source);
+    return uri.host.endsWith('motorsport.com') &&
+            (uri.path.isEmpty || uri.path == '/')
+        ? uri.replace(path: '/rss/f1/news/').toString()
+        : source;
+  }
+
   Future<Map<String, dynamic>> getFeedArticles(String feedUrl,
       {int? max}) async {
     var url = Uri.parse(feedUrl);
-    var response = await http.get(url);
+    var response = await http.get(url).timeout(const Duration(seconds: 20));
+    if (response.statusCode != 200) {
+      throw Exception('RSS HTTP ${response.statusCode}');
+    }
     RssFeed rssFeed = RssFeed.parse(response.body);
-    List<RssItem> rssItems = rssFeed.items!;
+    List<RssItem> rssItems = rssFeed.items ?? <RssItem>[];
     if (max != null) {
-      rssItems = rssItems.sublist(0, max);
+      rssItems = rssItems.take(max).toList();
     }
     Map<String, dynamic> resultsFormated = {
       'feedTitle': rssFeed.title,

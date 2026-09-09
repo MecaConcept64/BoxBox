@@ -44,6 +44,10 @@ void main() async {
   await Hive.initFlutter();
 
   final settingsBox = await Hive.openBox('settings');
+  if (!settingsBox.containsKey('pitwallFeedInitialized')) {
+    await settingsBox.put('homeFeed', ['https://fr.motorsport.com', 'rss']);
+    await settingsBox.put('pitwallFeedInitialized', true);
+  }
   final requestsBox = await Hive.openBox('requests');
   final historyBox = await Hive.openBox('history');
   final feedsBox = await Hive.openBox('feeds');

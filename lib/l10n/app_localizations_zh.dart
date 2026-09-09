@@ -650,6 +650,43 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get yes => '是';
+
+  @override
+  String get pitwallWeekend => 'Race weekend';
+
+  @override
+  String get pitwallUpcoming => 'Coming up';
+
+  @override
+  String get pitwallFinished => 'Finished';
+
+  @override
+  String get pitwallRaceCenter => 'Open Race Center';
+
+  @override
+  String get pitwallNews => 'The paddock is talking';
+
+  @override
+  String get pitwallSeeAll => 'See all';
+
+  @override
+  String get pitwallScheduleUnavailable =>
+      'Schedule unavailable. Pull down to refresh.';
+
+  @override
+  String get pitwallNewsUnavailable => 'News unavailable. Please try again.';
+
+  @override
+  String get pitwallRetry => 'Retry';
+
+  @override
+  String get pitwallLocalTime => 'Times in your local timezone';
+
+  @override
+  String get pitwallHome => 'Home';
+
+  @override
+  String get pitwallCategory => 'FORMULA 1';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).

@@ -428,5 +428,17 @@
   "worldChampionships": "World Championships",
   "@worldChampionships": {},
   "yes": "Yes",
-  "@yes": {}
+  "@yes": {},
+  "pitwallWeekend": "Race weekend",
+  "pitwallUpcoming": "Coming up",
+  "pitwallFinished": "Finished",
+  "pitwallRaceCenter": "Open Race Center",
+  "pitwallNews": "The paddock is talking",
+  "pitwallSeeAll": "See all",
+  "pitwallScheduleUnavailable": "Schedule unavailable. Pull down to refresh.",
+  "pitwallNewsUnavailable": "News unavailable. Please try again.",
+  "pitwallRetry": "Retry",
+  "pitwallLocalTime": "Times in your local timezone",
+  "pitwallHome": "Home",
+  "pitwallCategory": "FORMULA 1"
 }
