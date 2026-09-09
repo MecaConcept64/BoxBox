@@ -1502,6 +1502,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'FORMULA 1'**
   String get pitwallCategory;
+
+  /// No description provided for @readerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading'**
+  String get readerTitle;
+
+  /// No description provided for @readerOriginal.
+  ///
+  /// In en, this message translates to:
+  /// **'View original'**
+  String get readerOriginal;
+
+  /// No description provided for @readerUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This article cannot be displayed in the reader.'**
+  String get readerUnavailable;
+
+  /// No description provided for @readerSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Motorsport France'**
+  String get readerSource;
 }
 
 class _AppLocalizationsDelegate

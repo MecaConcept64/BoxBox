@@ -445,5 +445,9 @@
   "pitwallRetry": "Réessayer",
   "pitwallLocalTime": "Horaires dans votre fuseau local",
   "pitwallHome": "Accueil",
-  "pitwallCategory": "FORMULE 1"
+  "pitwallCategory": "FORMULE 1",
+  "readerTitle": "Lecture",
+  "readerOriginal": "Voir l’original",
+  "readerUnavailable": "Cet article ne peut pas être affiché dans le lecteur.",
+  "readerSource": "Motorsport France"
 }
