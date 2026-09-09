@@ -17,12 +17,11 @@
  * Copyright (c) 2022-2025, BrightDV
  */
 
-import 'package:boxbox/Screens/race_details.dart';
-import 'package:boxbox/api/ergast.dart';
+import 'package:boxbox/api/team_results.dart';
+import 'package:boxbox/helpers/constants.dart';
 import 'package:boxbox/api/services/formula1.dart';
 import 'package:boxbox/classes/article.dart';
 import 'package:boxbox/classes/driver.dart';
-import 'package:boxbox/helpers/convert_ergast_and_formula_one.dart';
 import 'package:boxbox/helpers/custom_physics.dart';
 import 'package:boxbox/helpers/driver_result_item.dart';
 import 'package:boxbox/helpers/news.dart';
@@ -96,7 +95,7 @@ class TeamDetailsScreen extends StatelessWidget {
                       ? TeamDetailsFragment(snapshot.data!)
                       : const LoadingIndicatorUtil(),
             ),
-            TeamResults(teamId),
+            TeamResults(teamFullName, teamId: detailsPath ?? teamId),
           ],
         ),
       ),
@@ -130,117 +129,41 @@ class TeamDetailsFragment extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Wrap(
             children: [
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Image.network(
-                    teamDetails["drivers"]["images"][0],
-                    width: (MediaQuery.of(context).size.width) / 2,
-                    height: (MediaQuery.of(context).size.width) / 2,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 7),
-                    child: SizedBox(
-                      width: (MediaQuery.of(context).size.width) / 2,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(right: 20),
-                            child: Text(
-                              teamDetails["drivers"]["names"][0][0],
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                teamDetails["drivers"]["names"][0][1],
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              Text(
-                                teamDetails["drivers"]["names"][0][2],
-                                style: TextStyle(
-                                  color: Theme.of(context).disabledColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+              for (int i = 0; i < teamDetails['drivers']['names'].length; i++)
+                SizedBox(
+                  width: MediaQuery.of(context).size.width / 2,
+                  child: Column(
+                    children: [
+                      if (teamDetails['drivers']['images'][i].isNotEmpty)
+                        Image.network(
+                          teamDetails['drivers']['images'][i],
+                          height: MediaQuery.of(context).size.width / 2,
+                          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                        ),
+                      Padding(
+                        padding: const EdgeInsets.all(7),
+                        child: Text(
+                          (teamDetails['drivers']['names'][i] as List)
+                              .where((part) => part.toString().isNotEmpty)
+                              .join(' '),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
-              Column(
-                children: [
-                  Image.network(
-                    teamDetails["drivers"]["images"][1],
-                    width: (MediaQuery.of(context).size.width) / 2,
-                    height: (MediaQuery.of(context).size.width) / 2,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 7),
-                    child: SizedBox(
-                      width: (MediaQuery.of(context).size.width) / 2,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(right: 20),
-                            child: Text(
-                              teamDetails["drivers"]["names"][1][0],
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                teamDetails["drivers"]["names"][1][1],
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              Text(
-                                teamDetails["drivers"]["names"][1][2],
-                                style: TextStyle(
-                                  color: Theme.of(context).disabledColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
             ],
           ),
           Padding(
             padding: const EdgeInsets.all(10),
             child: Column(
               children: [
-                for (int i = 0; i < teamDetails["teamStats"].length; i++)
+                for (int i = 0;
+                    i < teamDetails["teamStats"].length &&
+                        i < teamInfosLabels.length;
+                    i++)
                   Padding(
                     padding: const EdgeInsets.only(
                       top: 2,
@@ -364,172 +287,216 @@ class TeamDetailsFragment extends StatelessWidget {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 5, right: 5, bottom: 5),
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 15),
-                  child: Text(
-                    AppLocalizations.of(context)!.gallery,
-                    style: TextStyle(
-                      fontSize: 18,
+          if (teamDetails["medias"].isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(left: 5, right: 5, bottom: 5),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 15),
+                    child: Text(
+                      AppLocalizations.of(context)!.gallery,
+                      style: TextStyle(
+                        fontSize: 18,
+                      ),
                     ),
                   ),
-                ),
-                CarouselSlider(
-                  items: [
-                    for (int i = 0; i < teamDetails["medias"].length; i++)
-                      Image.network(teamDetails["medias"][i]),
-                  ],
-                  options: CarouselOptions(
-                    height: 351,
-                    autoPlay: true,
-                    viewportFraction: 0.85,
-                    autoPlayInterval: const Duration(seconds: 7),
-                    enlargeCenterPage: true,
-                    aspectRatio: 16 / 9,
+                  CarouselSlider(
+                    items: [
+                      for (int i = 0; i < teamDetails["medias"].length; i++)
+                        Image.network(teamDetails["medias"][i]),
+                    ],
+                    options: CarouselOptions(
+                      height: 351,
+                      autoPlay: true,
+                      viewportFraction: 0.85,
+                      autoPlayInterval: const Duration(seconds: 7),
+                      enlargeCenterPage: true,
+                      aspectRatio: 16 / 9,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
         ],
       ),
     );
   }
 }
 
-class TeamResults extends StatelessWidget {
+class TeamResults extends StatefulWidget {
   final String team;
-  const TeamResults(this.team, {super.key});
+  final String? teamId;
+  const TeamResults(this.team, {super.key, this.teamId});
+
+  @override
+  State<TeamResults> createState() => _TeamResultsState();
+}
+
+class _TeamResultsState extends State<TeamResults> {
+  late final TeamResultsApi api;
+  late final Future<List<List<DriverResult>>> results;
+
+  @override
+  void initState() {
+    super.initState();
+    final endpoint = Hive.box('settings')
+        .get('server', defaultValue: Constants().F1_API_URL) as String;
+    api = TeamResultsApi(
+        baseUrl: endpoint == Constants().F1_API_URL
+            ? null
+            : Uri.parse('$endpoint/f1'));
+    results = api.getTeamResults(widget.team, teamId: widget.teamId);
+  }
+
+  @override
+  void dispose() {
+    api.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<List<DriverResult>>>(
-      future: ErgastApi().getTeamResults(team),
+      future: results,
       builder: (context, snapshot) => snapshot.hasError
           ? RequestErrorWidget(
               snapshot.error.toString(),
             )
           : snapshot.hasData
-              ? ListView.builder(
-                  itemCount: snapshot.data!.length + 1,
-                  itemBuilder: (context, index) => index == 0
-                      ? Container(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          height: 45,
-                          child: Padding(
-                            padding: const EdgeInsets.all(5),
-                            child: Row(
+              ? snapshot.data!.isEmpty
+                  ? Center(child: Text(AppLocalizations.of(context)!.noResults))
+                  : ListView.builder(
+                      itemCount: snapshot.data!.length + 1,
+                      itemBuilder: (context, index) => index == 0
+                          ? Container(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              height: 45,
+                              child: Padding(
+                                padding: const EdgeInsets.all(5),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      flex: 2,
+                                      child: Text(
+                                        AppLocalizations.of(context)
+                                                ?.positionAbbreviation ??
+                                            ' POS',
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    const Expanded(
+                                      flex: 2,
+                                      child: Text(''),
+                                    ),
+                                    Expanded(
+                                      flex: 3,
+                                      child: Text(
+                                        AppLocalizations.of(context)
+                                                ?.driverAbbreviation ??
+                                            'DRI',
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 6,
+                                      child: Text(
+                                        AppLocalizations.of(context)?.time ??
+                                            'TIME',
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 3,
+                                      child: Text(
+                                        AppLocalizations.of(context)?.laps ??
+                                            'Laps',
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 3,
+                                      child: Text(
+                                        AppLocalizations.of(context)
+                                                ?.pointsAbbreviation ??
+                                            'PTS',
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
+                          : Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Expanded(
-                                  flex: 2,
-                                  child: Text(
-                                    AppLocalizations.of(context)
-                                            ?.positionAbbreviation ??
-                                        ' POS',
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                                const Expanded(
-                                  flex: 2,
-                                  child: Text(''),
-                                ),
-                                Expanded(
-                                  flex: 3,
-                                  child: Text(
-                                    AppLocalizations.of(context)
-                                            ?.driverAbbreviation ??
-                                        'DRI',
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 6,
-                                  child: Text(
-                                    AppLocalizations.of(context)?.time ??
-                                        'TIME',
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 3,
-                                  child: Text(
-                                    AppLocalizations.of(context)?.laps ??
-                                        'Laps',
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 3,
-                                  child: Text(
-                                    AppLocalizations.of(context)
-                                            ?.pointsAbbreviation ??
-                                        'PTS',
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        )
-                      : Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(10, 10, 0, 5),
-                              child: GestureDetector(
-                                onTap: () {
-                                  String circuitId =
-                                      Convert().circuitIdFromErgastToFormulaOne(
-                                    snapshot.data![index - 1][0].raceId!,
-                                  );
-                                  String circuitName = Convert()
-                                      .circuitNameFromErgastToFormulaOne(
-                                    snapshot.data![index - 1][0].raceId!,
-                                  );
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => Scaffold(
-                                        appBar: AppBar(
-                                          title: Text(
-                                            AppLocalizations.of(context)!.race,
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.w600,
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(10, 10, 0, 5),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => Scaffold(
+                                            appBar: AppBar(
+                                              title: Text(
+                                                AppLocalizations.of(context)!
+                                                    .race,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ),
+                                            body: FutureBuilder<
+                                                List<DriverResult>>(
+                                              future: api.getRaceResults(
+                                                snapshot.data![index - 1].first
+                                                    .raceId!,
+                                                snapshot.data![index - 1].first
+                                                    .raceName!,
+                                              ),
+                                              builder: (context,
+                                                      raceSnapshot) =>
+                                                  raceSnapshot.hasError
+                                                      ? RequestErrorWidget(
+                                                          raceSnapshot.error
+                                                              .toString())
+                                                      : raceSnapshot.hasData
+                                                          ? ListView(children: [
+                                                              for (final result
+                                                                  in raceSnapshot
+                                                                      .data!)
+                                                                DriverResultItem(
+                                                                    result, 5),
+                                                            ])
+                                                          : const LoadingIndicatorUtil(),
                                             ),
                                           ),
                                         ),
-                                        body: RaceResultsProvider(
-                                          raceUrl:
-                                              'https://www.formula1.com/en/results.html/${DateTime.now().year}/races/$circuitId/$circuitName/race-result.html',
-                                        ),
+                                      );
+                                    },
+                                    child: Text(
+                                      '${snapshot.data![index - 1][0].raceName!} >',
+                                      style: TextStyle(
+                                        decoration: TextDecoration.underline,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                     ),
-                                  );
-                                },
-                                child: Text(
-                                  '${snapshot.data![index - 1][0].raceName!} >',
-                                  style: TextStyle(
-                                    decoration: TextDecoration.underline,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                              ),
+                                DriverResultItem(
+                                  snapshot.data![index - 1][0],
+                                  5,
+                                ),
+                                if (snapshot.data![index - 1].length > 1)
+                                  DriverResultItem(
+                                    snapshot.data![index - 1][1],
+                                    5,
+                                  ),
+                              ],
                             ),
-                            DriverResultItem(
-                              snapshot.data![index - 1][0],
-                              5,
-                            ),
-                            if (snapshot.data![index - 1].length > 1)
-                              DriverResultItem(
-                                snapshot.data![index - 1][1],
-                                5,
-                              ),
-                          ],
-                        ),
-                )
+                    )
               : const LoadingIndicatorUtil(),
     );
   }

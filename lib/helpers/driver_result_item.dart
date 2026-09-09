@@ -67,6 +67,7 @@ class DriverResultItem extends StatelessWidget {
               item.driverId,
               item.givenName,
               item.familyName,
+              detailsPath: item.driverId.contains('-') ? item.driverId : null,
             ),
           ),
         );
