@@ -17,6 +17,9 @@
  * Copyright (c) 2022-2025, BrightDV
  */
 
+import 'package:boxbox/Screens/home.dart';
+import 'package:boxbox/config/home_feed.dart';
+import 'package:go_router/go_router.dart';
 import 'package:background_downloader/background_downloader.dart';
 import 'package:boxbox/helpers/drawer.dart';
 import 'package:boxbox/providers/general/ui.dart';
@@ -35,25 +38,16 @@ class MainBottomNavigationBar extends StatefulWidget {
 
 class _MainBottomNavigationBarState extends State<MainBottomNavigationBar> {
   int _selectedIndex = 0;
-  List<Widget> actions = [];
   final ScrollController scrollController = ScrollController();
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-      if (_selectedIndex == 0) {
-        actions = [
-          IconButton(
-            icon: const Icon(
-              Icons.close,
-            ),
-            onPressed: () {},
-          ),
-        ];
-      } else {
-        actions = [];
-      }
-    });
+    setState(() => _selectedIndex = index);
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
   }
 
   void _homeSetState() {
@@ -97,36 +91,92 @@ class _MainBottomNavigationBarState extends State<MainBottomNavigationBar> {
 
     List<Widget> screens =
         UIProvider().getBottomNavigationBarScreens(scrollController);
-    if (_selectedIndex == 0) {
-      actions = UIProvider().getNewsAppBarActions(context);
-    }
     bool disableBottomNavigationBarLabels = Hive.box('settings')
         .get('disableBottomNavigationBarLabels', defaultValue: false) as bool;
 
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text(
-          'Box, Box!',
-          style: TextStyle(
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        actions: actions,
-        backgroundColor: Theme.of(context).colorScheme.onPrimary,
+    final usePitwall = _selectedIndex == 0 &&
+        HomeFeedConfiguration(Hive.box('settings')).usePitwall;
+    final activeTheme = Theme.of(context);
+    final pitwallTheme = ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      scaffoldBackgroundColor: pitwallBackground,
+      fontFamily: 'Titilium',
+      colorScheme: ColorScheme.fromSeed(
+          seedColor: pitwallCoral,
+          brightness: Brightness.dark,
+          primary: pitwallCoral,
+          surface: pitwallSurface),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: pitwallBackground,
+        indicatorColor: pitwallCoral.withValues(alpha: 0.18),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) => TextStyle(
+            fontFamily: 'Titilium',
+            fontSize: 12,
+            color: states.contains(WidgetState.selected)
+                ? pitwallCoral
+                : pitwallMuted)),
+        iconTheme: WidgetStateProperty.resolveWith((states) => IconThemeData(
+            color: states.contains(WidgetState.selected)
+                ? pitwallCoral
+                : pitwallMuted)),
       ),
-      drawer: MainDrawer(_homeSetState),
-      drawerEdgeDragWidth: MediaQuery.of(context).size.width / 4,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex,
-        elevation: 10.0,
-        destinations: UIProvider().getBottomNavigationBarButtons(context),
-        onDestinationSelected: _onItemTapped,
-        labelBehavior: disableBottomNavigationBarLabels
-            ? NavigationDestinationLabelBehavior.alwaysHide
-            : NavigationDestinationLabelBehavior.alwaysShow,
-      ),
-      body: screens.elementAt(_selectedIndex),
     );
+    return Theme(
+        data: usePitwall ? pitwallTheme : activeTheme,
+        child: Scaffold(
+          appBar: AppBar(
+            centerTitle: false,
+            toolbarHeight: 76,
+            titleSpacing: 0,
+            title: usePitwall
+                ? const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                        Text.rich(TextSpan(children: [
+                          TextSpan(
+                              text: 'BoxBox',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w900, fontSize: 27)),
+                          TextSpan(
+                              text: ' ///',
+                              style: TextStyle(
+                                  color: pitwallCoral,
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 27)),
+                        ])),
+                        Text('P I T W A L L',
+                            style: TextStyle(
+                                fontSize: 10,
+                                color: pitwallMuted,
+                                letterSpacing: 2)),
+                      ])
+                : const Text('BoxBox',
+                    style: TextStyle(fontWeight: FontWeight.w700)),
+            foregroundColor: usePitwall ? Colors.white : null,
+            actions: [
+              IconButton(
+                tooltip: AppLocalizations.of(context)!.settings,
+                icon: const Icon(Icons.settings_outlined),
+                onPressed: () => context
+                    .pushNamed('settings', extra: {'update': _homeSetState}),
+              )
+            ],
+            backgroundColor: usePitwall ? pitwallBackground : null,
+            surfaceTintColor: Colors.transparent,
+          ),
+          drawer: MainDrawer(_homeSetState),
+          drawerEdgeDragWidth: MediaQuery.of(context).size.width / 4,
+          bottomNavigationBar: NavigationBar(
+            selectedIndex: _selectedIndex,
+            elevation: 0.0,
+            destinations: UIProvider().getBottomNavigationBarButtons(context),
+            onDestinationSelected: _onItemTapped,
+            labelBehavior: disableBottomNavigationBarLabels
+                ? NavigationDestinationLabelBehavior.alwaysHide
+                : NavigationDestinationLabelBehavior.alwaysShow,
+          ),
+          body: screens.elementAt(_selectedIndex),
+        ));
   }
 }

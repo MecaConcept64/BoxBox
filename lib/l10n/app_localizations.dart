@@ -1430,6 +1430,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Yes'**
   String get yes;
+
+  /// No description provided for @pitwallWeekend.
+  ///
+  /// In en, this message translates to:
+  /// **'Race weekend'**
+  String get pitwallWeekend;
+
+  /// No description provided for @pitwallUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming up'**
+  String get pitwallUpcoming;
+
+  /// No description provided for @pitwallFinished.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished'**
+  String get pitwallFinished;
+
+  /// No description provided for @pitwallRaceCenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Race Center'**
+  String get pitwallRaceCenter;
+
+  /// No description provided for @pitwallNews.
+  ///
+  /// In en, this message translates to:
+  /// **'The paddock is talking'**
+  String get pitwallNews;
+
+  /// No description provided for @pitwallSeeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get pitwallSeeAll;
+
+  /// No description provided for @pitwallScheduleUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule unavailable. Pull down to refresh.'**
+  String get pitwallScheduleUnavailable;
+
+  /// No description provided for @pitwallNewsUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'News unavailable. Please try again.'**
+  String get pitwallNewsUnavailable;
+
+  /// No description provided for @pitwallRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get pitwallRetry;
+
+  /// No description provided for @pitwallLocalTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Times in your local timezone'**
+  String get pitwallLocalTime;
+
+  /// No description provided for @pitwallHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get pitwallHome;
+
+  /// No description provided for @pitwallCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'FORMULA 1'**
+  String get pitwallCategory;
 }
 
 class _AppLocalizationsDelegate

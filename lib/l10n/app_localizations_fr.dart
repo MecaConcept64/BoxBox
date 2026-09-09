@@ -663,4 +663,42 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get yes => 'Oui';
+
+  @override
+  String get pitwallWeekend => 'Week-end de course';
+
+  @override
+  String get pitwallUpcoming => 'À venir';
+
+  @override
+  String get pitwallFinished => 'Terminé';
+
+  @override
+  String get pitwallRaceCenter => 'Ouvrir le Race Center';
+
+  @override
+  String get pitwallNews => 'Le paddock en parle';
+
+  @override
+  String get pitwallSeeAll => 'Voir tout';
+
+  @override
+  String get pitwallScheduleUnavailable =>
+      'Programme indisponible. Faites glisser vers le bas pour actualiser.';
+
+  @override
+  String get pitwallNewsUnavailable =>
+      'Actualités indisponibles. Réessayez dans un instant.';
+
+  @override
+  String get pitwallRetry => 'Réessayer';
+
+  @override
+  String get pitwallLocalTime => 'Horaires dans votre fuseau local';
+
+  @override
+  String get pitwallHome => 'Accueil';
+
+  @override
+  String get pitwallCategory => 'FORMULE 1';
 }

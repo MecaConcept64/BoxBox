@@ -20,7 +20,7 @@
 import 'package:boxbox/Screens/MixedNews/rss_feed.dart';
 import 'package:boxbox/Screens/MixedNews/wordpress.dart';
 import 'package:boxbox/api/rss.dart';
-import 'package:boxbox/helpers/constants.dart';
+import 'package:boxbox/config/home_feed.dart';
 import 'package:boxbox/helpers/loading_indicator_util.dart';
 import 'package:boxbox/helpers/news.dart';
 import 'package:boxbox/helpers/request_error.dart';
@@ -111,11 +111,8 @@ class NewsFeedWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String officialFeed = Constants().F1_API_URL;
-    List savedFeedUrl = Hive.box('settings')
-        .get('homeFeed', defaultValue: [officialFeed, 'api']) as List;
-    String savedServer = Hive.box('settings')
-        .get('server', defaultValue: officialFeed) as String;
+    final configuration = HomeFeedConfiguration(Hive.box('settings'));
+    final savedFeedUrl = configuration.effectiveFeed;
     return savedFeedUrl[1] == "api"
         ? NewsList(
             scrollController: scrollController,
@@ -125,11 +122,7 @@ class NewsFeedWidget extends StatelessWidget {
         : savedFeedUrl[1] == "rss"
             ? FutureBuilder<Map<String, dynamic>>(
                 future: RssFeeds().getFeedArticles(
-                  savedFeedUrl[0].contains('motorsport.com')
-                      ? savedServer != officialFeed
-                          ? "$savedServer/rss/${savedFeedUrl[0].replaceAll('https://', '').split('.')[0]}"
-                          : '${savedFeedUrl[0]}/rss/f1/news/'
-                      : savedFeedUrl[0],
+                  configuration.rssUrl,
                 ),
                 builder: (context, snapshot) => snapshot.hasError
                     ? RequestErrorWidget(
