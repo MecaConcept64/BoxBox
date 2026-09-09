@@ -25,6 +25,7 @@ import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:background_downloader/background_downloader.dart';
 import 'package:boxbox/api/services/formula1.dart';
 import 'package:boxbox/config/notifications.dart';
+import 'package:boxbox/config/home_feed.dart';
 import 'package:boxbox/config/router.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:boxbox/helpers/constants.dart';
@@ -44,10 +45,7 @@ void main() async {
   await Hive.initFlutter();
 
   final settingsBox = await Hive.openBox('settings');
-  if (!settingsBox.containsKey('pitwallFeedInitialized')) {
-    await settingsBox.put('homeFeed', ['https://fr.motorsport.com', 'rss']);
-    await settingsBox.put('pitwallFeedInitialized', true);
-  }
+  await initializeHomeFeed(settingsBox);
   final requestsBox = await Hive.openBox('requests');
   final historyBox = await Hive.openBox('history');
   final feedsBox = await Hive.openBox('feeds');

@@ -32,9 +32,11 @@ flutter build apk --release --target-platform android-arm64
 
 L’accueil défile d’un seul tenant ; tirer vers le bas recharge les deux
 sources. Le Race Center et les articles réutilisent les écrans existants.
-Le premier lancement sélectionne Motorsport France dans le réglage
-`homeFeed`. Les changements ultérieurs de source restent possibles dans
-les paramètres. Les autres langues utilisent les nouvelles traductions
+Motorsport France devient le réglage par défaut uniquement si `homeFeed`
+est absent. Les sources déjà enregistrées sont conservées. Les changements
+ultérieurs restent possibles dans les paramètres. Pitwall et son flux RSS
+sont réservés à la Formule 1 ; les autres championnats utilisent leur
+fournisseur d’actualités existant. Le serveur RSS personnalisé est respecté. Les autres langues utilisent les nouvelles traductions
 anglaises par défaut ; le français est traduit.
 
 Les dates et le statut de session sont calculés depuis les données F1.
@@ -55,3 +57,12 @@ Un échec réseau affiche un message et une action de réessai.
   Motorsport testé. Le navigateur externe affiche également une demande
   de désactivation du bloqueur publicitaire du site. La liste RSS fonctionne.
   Les réglages de confidentialité du téléphone n’ont pas été modifiés.
+
+## Corrections de la revue GitHub
+
+- Préférences conservées au démarrage et après une mise à jour.
+- Séparation des flux par championnat ; rechargement au changement de championnat.
+- Résolution RSS partagée avec prise en compte du serveur personnalisé,
+  y compris après un changement de serveur.
+- Sept tests de régression ajoutés ; neuf tests au total avec les tests
+  d’accueil existants. Ces corrections n’ont pas été réinstallées sur le Pixel.

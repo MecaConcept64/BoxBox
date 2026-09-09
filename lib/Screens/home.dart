@@ -21,6 +21,8 @@ import 'package:boxbox/Screens/MixedNews/rss_feed.dart';
 import 'package:boxbox/Screens/MixedNews/rss_feed_article.dart';
 import 'package:boxbox/api/rss.dart';
 import 'package:boxbox/classes/event_tracker.dart';
+import 'package:boxbox/config/home_feed.dart';
+import 'package:boxbox/helpers/live_session_status_indicator.dart';
 import 'package:boxbox/helpers/news_feed_widget.dart';
 import 'package:boxbox/l10n/app_localizations.dart';
 import 'package:boxbox/providers/event_tracker/requests.dart';
@@ -52,9 +54,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void didUpdateWidget(covariant HomeScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final selection = Hive.box('settings').get('homeFeed',
-        defaultValue: ['https://fr.motorsport.com', 'rss']).toString();
-    if (selection != _selection) _load();
+    final configuration = HomeFeedConfiguration(Hive.box('settings'));
+    if (configuration.signature != _selection) _load();
   }
 
   @override
@@ -64,11 +65,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _load() {
-    final feed = Hive.box('settings').get('homeFeed',
-        defaultValue: ['https://fr.motorsport.com', 'rss']) as List;
-    _selection = feed.toString();
-    _feedUrl = RssFeeds.feedUrl(feed[0] as String);
-    if (feed[1] != 'rss') return;
+    final configuration = HomeFeedConfiguration(Hive.box('settings'));
+    _selection = configuration.signature;
+    if (!configuration.usePitwall) return;
+    _feedUrl = configuration.rssUrl;
     _event = EventTrackerRequestsProvider()
         .parseEvent()
         .timeout(const Duration(seconds: 20));
@@ -88,10 +88,14 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    final feed = Hive.box('settings').get('homeFeed',
-        defaultValue: ['https://fr.motorsport.com', 'rss']) as List;
-    if (feed[1] != 'rss') {
-      return NewsFeed(scrollController: widget.scrollController);
+    final configuration = HomeFeedConfiguration(Hive.box('settings'));
+    if (!configuration.usePitwall) {
+      return Column(children: [
+        if (configuration.isFormula1 ||
+            configuration.championship == 'Formula E')
+          const LiveSessionStatusIndicator(),
+        Expanded(child: NewsFeed(scrollController: widget.scrollController)),
+      ]);
     }
     return RefreshIndicator(
       onRefresh: _refresh,
@@ -171,8 +175,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ? item.media!.contents!.first.url
             : null);
     final locale = Localizations.localeOf(context).toLanguageTag();
-    if (Uri.parse(_feedUrl).host == 'fr.motorsport.com')
-      source = 'Motorsport France';
+    if (Uri.parse(HomeFeedConfiguration(Hive.box('settings')).feed[0] as String)
+            .host ==
+        'fr.motorsport.com') source = 'Motorsport France';
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: InkWell(

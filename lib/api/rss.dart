@@ -21,10 +21,16 @@ import 'package:http/http.dart' as http;
 import 'package:webfeed/webfeed.dart';
 
 class RssFeeds {
-  static String feedUrl(String source) {
+  static String feedUrl(String source, {String? proxyServer}) {
     final uri = Uri.parse(source);
-    return uri.host.endsWith('motorsport.com') &&
-            (uri.path.isEmpty || uri.path == '/')
+    final motorsport =
+        uri.host == 'motorsport.com' || uri.host.endsWith('.motorsport.com');
+    if (!motorsport) return source;
+    if (proxyServer != null) {
+      final base = proxyServer.replaceFirst(RegExp(r'/+$'), '');
+      return '$base/rss/${uri.host.split('.').first}';
+    }
+    return uri.path.isEmpty || uri.path == '/'
         ? uri.replace(path: '/rss/f1/news/').toString()
         : source;
   }
