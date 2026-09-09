@@ -18,6 +18,7 @@
  */
 
 import 'package:boxbox/Screens/home.dart';
+import 'package:boxbox/config/home_feed.dart';
 import 'package:go_router/go_router.dart';
 import 'package:background_downloader/background_downloader.dart';
 import 'package:boxbox/helpers/drawer.dart';
@@ -93,6 +94,9 @@ class _MainBottomNavigationBarState extends State<MainBottomNavigationBar> {
     bool disableBottomNavigationBarLabels = Hive.box('settings')
         .get('disableBottomNavigationBarLabels', defaultValue: false) as bool;
 
+    final usePitwall = _selectedIndex == 0 &&
+        HomeFeedConfiguration(Hive.box('settings')).usePitwall;
+    final activeTheme = Theme.of(context);
     final pitwallTheme = ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
@@ -119,32 +123,37 @@ class _MainBottomNavigationBarState extends State<MainBottomNavigationBar> {
       ),
     );
     return Theme(
-        data: pitwallTheme,
+        data: usePitwall ? pitwallTheme : activeTheme,
         child: Scaffold(
           appBar: AppBar(
             centerTitle: false,
             toolbarHeight: 76,
             titleSpacing: 0,
-            title: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text.rich(TextSpan(children: [
-                    TextSpan(
-                        text: 'BoxBox',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w900, fontSize: 27)),
-                    TextSpan(
-                        text: ' ///',
-                        style: TextStyle(
-                            color: pitwallCoral,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 27)),
-                  ])),
-                  Text('P I T W A L L',
-                      style: TextStyle(
-                          fontSize: 10, color: pitwallMuted, letterSpacing: 2)),
-                ]),
-            foregroundColor: Colors.white,
+            title: usePitwall
+                ? const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                        Text.rich(TextSpan(children: [
+                          TextSpan(
+                              text: 'BoxBox',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w900, fontSize: 27)),
+                          TextSpan(
+                              text: ' ///',
+                              style: TextStyle(
+                                  color: pitwallCoral,
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 27)),
+                        ])),
+                        Text('P I T W A L L',
+                            style: TextStyle(
+                                fontSize: 10,
+                                color: pitwallMuted,
+                                letterSpacing: 2)),
+                      ])
+                : const Text('BoxBox',
+                    style: TextStyle(fontWeight: FontWeight.w700)),
+            foregroundColor: usePitwall ? Colors.white : null,
             actions: [
               IconButton(
                 tooltip: AppLocalizations.of(context)!.settings,
@@ -153,7 +162,7 @@ class _MainBottomNavigationBarState extends State<MainBottomNavigationBar> {
                     .pushNamed('settings', extra: {'update': _homeSetState}),
               )
             ],
-            backgroundColor: pitwallBackground,
+            backgroundColor: usePitwall ? pitwallBackground : null,
             surfaceTintColor: Colors.transparent,
           ),
           drawer: MainDrawer(_homeSetState),
@@ -167,11 +176,7 @@ class _MainBottomNavigationBarState extends State<MainBottomNavigationBar> {
                 ? NavigationDestinationLabelBehavior.alwaysHide
                 : NavigationDestinationLabelBehavior.alwaysShow,
           ),
-          body: _selectedIndex == 0
-              ? screens.first
-              : Theme(
-                  data: Theme.of(context),
-                  child: screens.elementAt(_selectedIndex)),
+          body: screens.elementAt(_selectedIndex),
         ));
   }
 }

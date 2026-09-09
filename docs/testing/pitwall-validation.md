@@ -66,3 +66,16 @@ Un échec réseau affiche un message et une action de réessai.
   y compris après un changement de serveur.
 - Sept tests de régression ajoutés ; neuf tests au total avec les tests
   d’accueil existants. Ces corrections n’ont pas été réinstallées sur le Pixel.
+
+## Apparence hors Pitwall
+
+Le thème sombre/corail ne s’applique que lorsque l’onglet Accueil affiche
+Pitwall (Formule 1 avec un flux RSS). Le flux classique, les autres
+championnats et les autres onglets héritent du thème actif de l’application,
+y compris l’en-tête et la navigation. Les couleurs forcées de l’en-tête
+sont retirées hors Pitwall.
+
+Cinq tests de widgets supplémentaires vérifient les modes clair, système
+et sombre sur le flux classique, un autre championnat en mode clair et
+un aller-retour entre Pitwall et le calendrier. Cette correction n’est
+pas encore installée sur le Pixel.
