@@ -440,5 +440,9 @@
   "pitwallRetry": "Retry",
   "pitwallLocalTime": "Times in your local timezone",
   "pitwallHome": "Home",
-  "pitwallCategory": "FORMULA 1"
+  "pitwallCategory": "FORMULA 1",
+  "readerTitle": "Reading",
+  "readerOriginal": "View original",
+  "readerUnavailable": "This article cannot be displayed in the reader.",
+  "readerSource": "Motorsport France"
 }

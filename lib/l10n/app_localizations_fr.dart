@@ -701,4 +701,17 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get pitwallCategory => 'FORMULE 1';
+
+  @override
+  String get readerTitle => 'Lecture';
+
+  @override
+  String get readerOriginal => 'Voir l’original';
+
+  @override
+  String get readerUnavailable =>
+      'Cet article ne peut pas être affiché dans le lecteur.';
+
+  @override
+  String get readerSource => 'Motorsport France';
 }

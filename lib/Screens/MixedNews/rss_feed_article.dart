@@ -17,6 +17,8 @@
  * Copyright (c) 2022-2025, BrightDV
  */
 
+import 'package:boxbox/api/motorsport_article.dart';
+import 'package:boxbox/Screens/MixedNews/native_news_reader.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -24,17 +26,31 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class RssFeedArticleScreen extends StatefulWidget {
+class RssFeedArticleScreen extends StatelessWidget {
   final String articleTitle;
   final String articleUrl;
-  const RssFeedArticleScreen(this.articleTitle, this.articleUrl, {Key? key})
+  const RssFeedArticleScreen(this.articleTitle, this.articleUrl, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final original = RssWebArticleScreen(articleTitle, articleUrl);
+    return MotorsportArticle.supports(articleUrl)
+        ? NativeNewsReader(articleUrl: articleUrl, original: original)
+        : original;
+  }
+}
+
+class RssWebArticleScreen extends StatefulWidget {
+  final String articleTitle;
+  final String articleUrl;
+  const RssWebArticleScreen(this.articleTitle, this.articleUrl, {Key? key})
       : super(key: key);
 
   @override
-  State<RssFeedArticleScreen> createState() => _RssFeedArticleScreenState();
+  State<RssWebArticleScreen> createState() => _RssFeedArticleScreenState();
 }
 
-class _RssFeedArticleScreenState extends State<RssFeedArticleScreen> {
+class _RssFeedArticleScreenState extends State<RssWebArticleScreen> {
   final List<ContentBlocker> contentBlockers = [];
 
   @override

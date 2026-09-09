@@ -695,4 +695,17 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get pitwallCategory => 'FORMULA 1';
+
+  @override
+  String get readerTitle => 'Reading';
+
+  @override
+  String get readerOriginal => 'View original';
+
+  @override
+  String get readerUnavailable =>
+      'This article cannot be displayed in the reader.';
+
+  @override
+  String get readerSource => 'Motorsport France';
 }
