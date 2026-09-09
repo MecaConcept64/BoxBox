@@ -46,7 +46,10 @@ List<List<String>> _articles(Document document) {
     final image = card.querySelector('img')?.attributes['src'];
     final title =
         card.querySelector('[class*="ArticleListCard-module_title"]')?.text ??
-            link?.text;
+            link?.text ??
+            (card.attributes['href'] != null
+                ? (card.querySelector('h2, h3')?.text ?? card.text)
+                : null);
     if (href != null &&
         image != null &&
         title != null &&

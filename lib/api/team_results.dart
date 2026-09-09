@@ -3,6 +3,19 @@ import 'package:boxbox/classes/driver.dart';
 import 'package:html/parser.dart' as parser;
 import 'package:http/http.dart' as http;
 
+// Keep constructor IDs and profile slugs independent of display sponsors.
+String _teamIdentity(String name) {
+  final key = name.toLowerCase().replaceAll(RegExp('[^a-z0-9]'), '');
+  const aliases = {
+    'haas': 'haasf1team',
+    'haasferrari': 'haasf1team',
+    'redbull': 'redbullracing',
+    'rb': 'racingbulls',
+    'sauber': 'kicksauber',
+  };
+  return aliases[key] ?? key;
+}
+
 /// Official season pages provide the current team and race URLs, including
 /// renamed teams and new circuits, without hard-coded season identifiers.
 class TeamResultsApi {
@@ -28,14 +41,19 @@ class TeamResultsApi {
   }
 
   Future<List<List<DriverResult>>> getTeamResults(String team,
-      {int? year}) async {
+      {int? year, String? teamId}) async {
     final season = year ?? DateTime.now().year;
     final document = parser.parse(await _get('/en/results/$season/team'));
     final links = document.querySelectorAll('table a[href*="/team/"]');
-    String normalize(String name) =>
-        name.toLowerCase().replaceAll(RegExp('[^a-z0-9]'), '');
-    final matches =
-        links.where((link) => normalize(link.text) == normalize(team));
+    final identities = {
+      _teamIdentity(team),
+      if (teamId != null && teamId.isNotEmpty) _teamIdentity(teamId),
+    };
+    final matches = links.where((link) =>
+        identities.contains(_teamIdentity(link.text)) ||
+        identities.contains(_teamIdentity(
+          Uri.parse(link.attributes['href']!).pathSegments.last,
+        )));
     if (matches.isEmpty)
       throw http.ClientException('F1 team unavailable: $team');
     final teamName = matches.first.text.trim();
@@ -53,7 +71,8 @@ class TeamResultsApi {
         }
         final entries = await getRaceResults(path, race.text.trim());
         return entries
-            .where((entry) => normalize(entry.team) == normalize(teamName))
+            .where(
+                (entry) => _teamIdentity(entry.team) == _teamIdentity(teamName))
             .toList();
       })));
     }

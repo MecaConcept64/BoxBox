@@ -48,6 +48,29 @@ void main() {
     expect(parseTeamProfile(html)['drivers']['names'], isEmpty);
   });
 
+  test('legacy self-linking cards retain titles and article IDs', () {
+    const html = '''<h1>Ferrari</h1>
+      <a class="f1-driver-article-card" href="/en/latest/article/report.legacy-id">
+        <img src="https://example.com/article.jpg">
+        <div><span>News</span><h3>Legacy article title</h3></div>
+      </a>
+      <a class="f1-driver-article-card" href="/en/latest/article/other.other-id">
+        <img src="https://example.com/other.jpg"><div>Other title</div>
+      </a>
+    ''';
+    final articles = parseTeamProfile(html)['articles'];
+    expect(articles, [
+      [
+        'legacy-id',
+        'https://example.com/article.jpg',
+        'Legacy article title',
+        ''
+      ],
+      ['other-id', 'https://example.com/other.jpg', 'Other title', ''],
+    ]);
+    expect(parseDriverProfile(html)[1], articles);
+  });
+
   test('non-profile responses produce a controlled error, not a RangeError',
       () {
     expect(() => parseDriverProfile(''), throwsFormatException);

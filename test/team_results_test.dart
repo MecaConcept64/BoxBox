@@ -67,6 +67,36 @@ void main() {
     expect(paths.last, '/en/results/2026/team/Red-Bull-Racing-Red-Bull-Ford');
   });
 
+  test('resolves Haas display alias and stable profile identity', () async {
+    for (final input in [
+      ['Haas Ferrari', null],
+      ['Sponsor Haas', 'haas-f1-team'],
+      ['Haas Ferrari', 'haas'],
+    ]) {
+      final paths = <String>[];
+      final api = TeamResultsApi(client: MockClient((request) async {
+        paths.add(request.url.path);
+        return http.Response(
+            paths.length == 1
+                ? fixture('teams')
+                : '<table><tbody></tbody></table>',
+            200);
+      }));
+      addTearDown(api.close);
+      expect(await api.getTeamResults(input[0]!, teamId: input[1], year: 2026),
+          isEmpty);
+      expect(paths.last, '/en/results/2026/team/Haas-Ferrari');
+    }
+  });
+
+  test('an unknown identity never selects an unrelated constructor', () async {
+    final api = TeamResultsApi(
+        client: MockClient((_) async => http.Response(fixture('teams'), 200)));
+    addTearDown(api.close);
+    await expectLater(api.getTeamResults('Unknown', teamId: 'unknown'),
+        throwsA(isA<http.ClientException>()));
+  });
+
   test('HTTP and non-table errors are reported without JSON decoding',
       () async {
     for (final status in [404, 200]) {

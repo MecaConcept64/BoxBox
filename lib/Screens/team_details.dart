@@ -95,7 +95,7 @@ class TeamDetailsScreen extends StatelessWidget {
                       ? TeamDetailsFragment(snapshot.data!)
                       : const LoadingIndicatorUtil(),
             ),
-            TeamResults(teamFullName),
+            TeamResults(teamFullName, teamId: detailsPath ?? teamId),
           ],
         ),
       ),
@@ -326,7 +326,8 @@ class TeamDetailsFragment extends StatelessWidget {
 
 class TeamResults extends StatefulWidget {
   final String team;
-  const TeamResults(this.team, {super.key});
+  final String? teamId;
+  const TeamResults(this.team, {super.key, this.teamId});
 
   @override
   State<TeamResults> createState() => _TeamResultsState();
@@ -345,7 +346,7 @@ class _TeamResultsState extends State<TeamResults> {
         baseUrl: endpoint == Constants().F1_API_URL
             ? null
             : Uri.parse('$endpoint/f1'));
-    results = api.getTeamResults(widget.team);
+    results = api.getTeamResults(widget.team, teamId: widget.teamId);
   }
 
   @override
